@@ -1,0 +1,48 @@
+{
+  "checkIntervalMinutes": 2,
+  "delayBetweenChecksSeconds": 2,
+  "offlineThreshold": 2,
+
+  "defaults": {
+    "mode": "both",
+    "botName": "Alerta TikTok LIVE",
+    "botAvatar": "",
+    "mention": "",
+    "message": "🚨 **¡{username} acaba de iniciar un LIVE en TikTok!**\n{url}",
+    "embeds": [
+      {
+        "title": "🔴 {username} está en vivo",
+        "description": "{title}",
+        "url": "{url}",
+        "color": 16711758,
+        "thumbnail": { "url": "{avatar}" },
+        "image": { "url": "{cover}" },
+        "fields": [
+          { "name": "👀 Espectadores", "value": "{viewers}", "inline": true },
+          { "name": "🕒 Inicio", "value": "{time}", "inline": true }
+        ],
+        "footer": { "text": "TikTok LIVE" },
+        "timestamp": "{iso}"
+      }
+    ],
+    "onEnd": {
+      "enabled": false,
+      "message": "⚫ El LIVE de **{username}** terminó (duró {duration})."
+    }
+  },
+
+  "creators": [
+    {
+      "tiktokUsername": "primer_tiktoker",
+      "webhooks": ["AQUÍ_EL_WEBHOOK_DEL_SERVIDOR_1"]
+    },
+    {
+      "tiktokUsername": "segundo_tiktoker",
+      "webhooks": ["AQUÍ_WEBHOOK_A", "AQUÍ_WEBHOOK_B"],
+      "mode": "message",
+      "mention": "@everyone",
+      "message": "¡Corran! {username} está en directo: {url}",
+      "onEnd": { "enabled": true, "message": "Se acabó el live de {username} 👋" }
+    }
+  ]
+}
