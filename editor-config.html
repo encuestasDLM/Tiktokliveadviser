@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Editor de config · Alertas TikTok LIVE</title>
+    <style>
+        :root{--bg:#f4f5f7;--pn:#fff;--tx:#1c1e21;--mu:#6b7280;--bd:#dfe3e8;--ac:#5865f2;--dg:#d33;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+        @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--pn:#1e2127;--tx:#e8eaed;--mu:#9aa1ab;--bd:#323741}}
+        :root[data-theme="dark"]{--bg:#15171b;--pn:#1e2127;--tx:#e8eaed;--mu:#9aa1ab;--bd:#323741}
+        html{scroll-padding-top:env(safe-area-inset-top,0px)}
+        *{box-sizing:border-box}
+        body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+        header{display:flex;gap:10px;align-items:center;padding:10px 14px;background:var(--pn);border-bottom:1px solid var(--bd)}
+        h1{font-size:16px;margin:0;flex:1}h3,h4{margin:14px 0 4px}h3{margin-top:0}
+        main{display:grid;grid-template-columns:210px minmax(0,1fr) 380px;gap:14px;padding:14px;align-items:start}
+        @media(max-width:1000px){main{grid-template-columns:1fr}}
+        .pn{background:var(--pn);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}
+        @media(min-width:1001px){.pv{position:sticky;top:12px}}
+        label{display:block;font-size:12px;color:var(--mu);margin-top:8px}
+        input,select,textarea{width:100%;margin-top:3px;padding:7px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit}
+        textarea{resize:vertical;min-height:54px}
+        input[type=checkbox]{width:auto;margin:0 6px 0 0}input[type=color]{padding:0;height:32px}
+        button{padding:7px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--pn);color:var(--tx);font:inherit;cursor:pointer}
+        button.p,#side .on{background:var(--ac);color:#fff;border-color:var(--ac)}
+        button.dg{color:var(--dg);border-color:var(--dg)}
+        #side button{display:block;width:100%;text-align:left;margin-bottom:6px}
+        .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+        .eb{border:1px dashed var(--bd);border-radius:8px;padding:8px;margin:10px 0}
+        .mu{color:var(--mu);font-size:12px}.w{color:#c77700;font-size:12px;margin:2px 0}
+        .tabs{display:flex;gap:6px;margin-bottom:8px}.tabs button{flex:1}.tabs .on{background:var(--ac);color:#fff}
+        .dc{background:#313338;color:#dbdee1;border-radius:8px;padding:12px;font-family:"gg sans",system-ui,sans-serif;font-size:14px}
+        .hd{display:flex;gap:10px;align-items:center;margin-bottom:4px}.av{width:36px;height:36px;border-radius:50%;background:var(--ac);display:grid;place-items:center}
+        .bot{background:#5865f2;color:#fff;font-size:10px;border-radius:3px;padding:1px 4px;margin-left:4px}.hd small{color:#949ba4;margin-left:6px}
+        .em{display:flex;gap:10px;background:#2b2d31;border-left:4px solid #5865f2;border-radius:4px;padding:8px 10px;margin-top:6px;max-width:100%}
+        .ti{font-weight:700;color:#fff}.ti a{color:#00a8fc}.au{font-size:12px;font-weight:600}.ds{margin-top:4px}.fl{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.fn{display:block;font-size:12px}
+        .ft{font-size:11px;color:#949ba4;margin-top:6px}.ph{width:64px;height:64px;background:#3f4147;border-radius:4px;display:grid;place-items:center;font-size:10px;text-align:center;color:#949ba4;flex:none}
+        .ph.big{width:100%;height:120px;margin-top:8px}.mn{background:#3c4270;color:#c9cdfb;border-radius:3px;padding:0 2px}code{background:#1e1f22;padding:0 3px;border-radius:3px}.dc a{color:#00a8fc}
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🔴 Editor de config · Alertas TikTok LIVE</h1><span id="st" class="mu"></span>
+        <button class="p" onclick="copy()">Copiar config.json</button>
+    </header>
+    <main>
+        <aside class="pn" id="side"></aside>
+        <section>
+            <div class="pn" id="form"></div>
+            <div class="pn">
+                <h4 style="margin-top:0">config.json resultante</h4>
+                <textarea id="out" readonly rows="10" style="font-family:monospace;font-size:12px"></textarea>
+                <details>
+                    <summary class="mu" style="margin-top:8px;cursor:pointer">Importar un config.json existente</summary>
+                    <textarea id="imp" rows="5" placeholder="Pega aquí tu config.json"></textarea>
+                    <button style="margin-top:6px" onclick="imp()">Cargar</button>
+                </details>
+            </div>
+        </section>
+        <aside class="pv">
+            <div class="pn">
+                <div class="tabs">
+                    <button id="t1" class="on" onclick="tb('live')">Aviso de LIVE</button>
+                    <button id="t2" onclick="tb('end')">Fin del LIVE</button>
+                </div>
+                <div class="row">
+                    <label>Título de ejemplo
+                        <input data-s="title" value="Jugando con la comunidad 🎮">
+                    </label>
+                    <label>Espectadores
+                        <input data-s="viewers" value="128">
+                    </label>
+                </div>
+                <div class="dc" id="pv" style="margin-top:10px"></div>
+                <div id="wn" style="margin-top:6px"></div>
+                <p class="mu">Variables: {username} {url} {title} {viewers} {cover} {avatar} {time} {iso} {duration}. Las imágenes se muestran como recuadro de ejemplo.</p>
+            </div>
+        </aside>
+    </main>
+    <script>
+        const $=s=>document.querySelector(s);
+        const DEF={checkIntervalMinutes:2,delayBetweenChecksSeconds:2,offlineThreshold:2,defaults:{mode:'both',botName:'Alerta TikTok LIVE',message:'🚨 **¡{username} acaba de iniciar un LIVE en TikTok!**\n{url}',embeds:[{title:'🔴 {username} está en vivo',description:'{title}',url:'{url}',color:16711758,thumbnail:{url:'{avatar}'},image:{url:'{cover}'},fields:[{name:'👀 Espectadores',value:'{viewers}',inline:true},{name:'🕒 Inicio',value:'{time}',inline:true}],footer:{text:'TikTok LIVE'},timestamp:'{iso}'}],onEnd:{enabled:false,message:'⚫ El LIVE de **{username}** terminó (duró {duration}).'}},creators:[{tiktokUsername:'primer_tiktoker',webhooks:['']}]};
+        let cfg=structuredClone(DEF),sel='defaults',tab='live',S={title:'Jugando con la comunidad 🎮',viewers:'128'};
+        try{const s=localStorage.getItem('cfgTT');if(s)cfg=JSON.parse(s)}catch{}
+        const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        const isDef=()=>sel==='defaults',T=()=>isDef()?cfg.defaults:cfg.creators[sel];
+        const save=()=>{try{localStorage.setItem('cfgTT',JSON.stringify(cfg))}catch{}};
+        const get=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o);
+        function set(o,p,v){const k=p.split('.'),l=k.pop();let a=o;for(const x of k)a=a[x]??={};if(v==='')delete a[l];else a[l]=v}
+        function render(v,vars){if(typeof v==='string')return v.replace(/\{(\w+)\}/g,(m,k)=>k in vars?String(vars[k]??''):m);if(Array.isArray(v))return v.map(x=>render(x,vars));if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,render(x,vars)]));return v}
+        function clean(o){if(Array.isArray(o))return o.map(clean);if(o&&typeof o==='object'){const r={};for(const[k,v]of Object.entries(o)){let c=clean(v);if(k==='fields'&&Array.isArray(c))c=c.filter(f=>f.name&&f.value);if(c===undefined||c===''||(Array.isArray(c)&&!c.length)||(c&&typeof c==='object'&&!Array.isArray(c)&&!Object.keys(c).length))continue;r[k]=c}return r}return o}
+        const hex=n=>'#'+(+n||5793266).toString(16).padStart(6,'0');
+        const ph=p=>isDef()||p.startsWith('embeds')?'':String(get(cfg.defaults,p)??'');
+        const inp=(p,l,t='text')=>`<label>${l}<input type="${t}" data-p="${p}" value="${esc(get(T(),p))}" placeholder="${esc(ph(p))}"></label>`;
+        const ta=(p,l,r=3)=>`<label>${l}<textarea rows="${r}" data-p="${p}" placeholder="${esc(ph(p))}">${esc(get(T(),p))}</textarea></label>`;
+        const gn=(k,l)=>`<label>${l}<input type="number" min="1" data-g="${k}" value="${cfg[k]}"></label>`;
+        function vars(){const u=isDef()?'ejemplo_tiktoker':(T().tiktokUsername||'tiktoker'),n=new Date();return{username:u,url:`https://www.tiktok.com/@${u}/live`,title:S.title,viewers:S.viewers,cover:'(portada)',avatar:'(avatar)',time:n.toLocaleTimeString(),iso:n.toISOString(),duration:'1 h 25 min'}}
+        function side(){$('#side').innerHTML=`<button class="${isDef()?'on':''}" onclick="pick('defaults')">⚙️ Global / por defecto</button>`+cfg.creators.map((c,i)=>`<button class="${sel===i?'on':''}" onclick="pick(${i})">@${esc(c.tiktokUsername||'(sin nombre)')}</button>`).join('')+`<button onclick="addCreator()">➕ Añadir tiktoker</button>`}
+        function embForm(m,i){const q=`embeds.${i}.`,f=(m.fields||[]).map((x,j)=>`<div class="row" style="align-items:end"><label>Campo<input data-p="${q}fields.${j}.name" value="${esc(x.name)}"></label><label>Valor<input data-p="${q}fields.${j}.value" value="${esc(x.value)}"></label><label style="flex:0 0 70px"><input type="checkbox" data-t="bool" data-p="${q}fields.${j}.inline" ${x.inline?'checked':''}>en línea</label><button class="dg" style="flex:0 0 36px" onclick="delFld(${i},${j})">✕</button></div>`).join('');
+        return `<div class="eb"><div class="row" style="align-items:center"><b>Embed ${i+1}</b><button class="dg" style="flex:0 0 auto" onclick="delEmb(${i})">Quitar</button></div>${inp(q+'title','Título')}${ta(q+'description','Descripción',3)}<div class="row">${inp(q+'url','URL del título')}<label>Color<input type="color" data-t="color" data-p="${q}color" value="${hex(m.color)}"></label></div><div class="row">${inp(q+'author.name','Autor')}${inp(q+'footer.text','Pie de página')}</div><div class="row">${inp(q+'thumbnail.url','Miniatura (URL o {avatar})')}${inp(q+'image.url','Imagen grande (URL o {cover})')}</div><label><input type="checkbox" data-t="ts" data-p="${q}timestamp" ${m.timestamp?'checked':''}>Mostrar hora</label>${f}<button onclick="addFld(${i})" style="margin-top:6px">+ Campo</button></div>`}
+        function form(){const t=T(),d=isDef();let h='';
+        if(d)h+=`<h3>⚙️ Global y valores por defecto</h3><div class="row">${gn('checkIntervalMinutes','Revisar cada (min)')}${gn('delayBetweenChecksSeconds','Pausa entre creadores (s)')}${gn('offlineThreshold','Revisiones para dar por terminado')}</div><p class="mu">Cada tiktoker hereda estos valores; lo que dejes vacío en uno usa el valor por defecto.</p>`;
+        else h+=`<h3>@${esc(t.tiktokUsername||'nuevo')}</h3>${inp('tiktokUsername','Usuario de TikTok (sin @)')}<label>Webhooks de Discord (uno por línea)<textarea rows="2" data-t="list" data-p="webhooks" placeholder="https://discord.com/api/webhooks/...">${esc((t.webhooks||[]).join('\n'))}</textarea></label>`;
+        const mo=(d?[]:['']).concat(['message','embed','both']),ml={'':'(heredar)',message:'Solo mensaje',embed:'Solo embeds',both:'Mensaje + embeds'};
+        h+=`<div class="row"><label>Modo<select data-p="mode">${mo.map(m=>`<option value="${m}" ${(t.mode||'')===m?'selected':''}>${ml[m]}</option>`).join('')}</select></label>${inp('botName','Nombre del bot')}</div><div class="row">${inp('botAvatar','Avatar del bot (URL)')}${inp('mention','Mención (@everyone, <@&ID>)')}</div>${ta('message','Mensaje (**negrita**, {variables})',3)}<h4>Embeds</h4>`;
+        const own=d||Array.isArray(t.embeds);
+        if(!d)h+=`<label><input type="checkbox" ${own?'checked':''} onchange="togEmb(this.checked)">Usar embeds propios (si no, hereda los de por defecto)</label>`;
+        if(own){(t.embeds||[]).forEach((m,i)=>h+=embForm(m,i));h+=`<button onclick="addEmb()">+ Añadir embed</button>`}
+        const oe=t.onEnd||(d?{}:cfg.defaults.onEnd||{});
+        h+=`<h4>Aviso de fin de LIVE</h4><label><input type="checkbox" data-t="bool" data-p="onEnd.enabled" ${oe.enabled?'checked':''}>Enviar aviso cuando termine</label>${ta('onEnd.message','Mensaje de fin ({username}, {duration})',2)}`;
+        if(!d)h+=`<p><button class="dg" onclick="delCreator(this)">Eliminar tiktoker</button></p>`;
+        $('#form').innerHTML=h}
+        function md(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(?<!\*)\*([^*]+?)\*/g,'<i>$1</i>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/(https?:\/\/[^\s<]+)/g,'<a>$1</a>').replace(/&lt;@&amp;\d+&gt;|@(everyone|here)/g,m=>`<span class="mn">${m.startsWith('@')?m:'@rol'}</span>`).replace(/\n/g,'<br>')}
+        const im=(u,c='')=>u?`<div class="ph ${c}">🖼️ ${u.startsWith('http')?'imagen':esc(u)}</div>`:'';
+        function emb(m,W){if((m.title||'').length>256)W.push('Un título supera 256 caracteres.');if((m.description||'').length>4096)W.push('Una descripción supera 4096 caracteres.');if((m.fields||[]).length>25)W.push('Un embed tiene más de 25 campos.');
+        const fl=(m.fields||[]).filter(f=>f.name&&f.value);
+        return `<div class="em" style="border-left-color:${hex(m.color)}"><div style="flex:1;min-width:0">${m.author?.name?`<div class="au">${esc(m.author.name)}</div>`:''}${m.title?`<div class="ti">${m.url?`<a>${esc(m.title)}</a>`:esc(m.title)}</div>`:''}${m.description?`<div class="ds">${md(m.description)}</div>`:''}${fl.length?`<div class="fl">${fl.map(f=>`<div style="flex:1 1 ${f.inline?'30%':'100%'}"><b class="fn">${esc(f.name)}</b>${md(f.value)}</div>`).join('')}</div>`:''}${im(m.image?.url,'big')}${m.footer?.text||m.timestamp?`<div class="ft">${esc(m.footer?.text||'')}${m.footer?.text&&m.timestamp?' • ':''}${m.timestamp?'hoy a las '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}</div>`:''}</div>${im(m.thumbnail?.url)}</div>`}
+        function pv(){const d=cfg.defaults,t=isDef()?{}:T(),e={...d,...t},v=vars(),R=x=>render(x,v),W=[],end=tab==='end',oe=e.onEnd||{},src=end?{...e,mode:'message',...oe}:e,mode=src.mode||'message';
+        if(end&&!oe.enabled)W.push('El aviso de fin está desactivado (actívalo arriba).');
+        if(!isDef()){if(!t.tiktokUsername)W.push('Falta el usuario de TikTok.');const hs=(t.webhooks||[]).filter(Boolean);if(!hs.length)W.push('Este tiktoker no tiene webhooks.');hs.forEach(h=>{if(!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(h))W.push('Webhook con formato raro: '+h.slice(0,38)+'…')})}
+        const parts=[];if(src.mention)parts.push(src.mention);if((mode==='message'||mode==='both')&&src.message)parts.push(R(src.message));const c=parts.join('\n');
+        if(c.length>2000)W.push('El contenido supera 2000 caracteres.');
+        const es=(mode==='embed'||mode==='both')&&!end?(src.embeds||[]).map(R):[];if(es.length>10)W.push('Máximo 10 embeds.');
+        if(!c&&!es.length)W.push('El mensaje saldría vacío: Discord lo rechazaría.');
+        $('#pv').innerHTML=`<div class="hd"><div class="av">🔴</div><div><b>${esc(R(src.botName||'Alerta TikTok LIVE'))}</b><span class="bot">BOT</span><small>hoy</small></div></div>${c?`<div>${md(c)}</div>`:''}${es.slice(0,10).map(m=>emb(m,W)).join('')}`;
+        $('#wn').innerHTML=W.map(x=>`<div class="w">⚠️ ${esc(x)}</div>`).join('')}
+        const exp=()=>{$('#out').value=JSON.stringify(clean(cfg),null,2)};
+        const all=()=>{save();pv();exp()};
+        function refresh(){form();side();all()}
+        function pick(i){sel=i;refresh()}
+        function tb(x){tab=x;$('#t1').className=x==='live'?'on':'';$('#t2').className=x==='end'?'on':'';pv()}
+        function addCreator(){cfg.creators.push({tiktokUsername:'nuevo_tiktoker',webhooks:['']});pick(cfg.creators.length-1)}
+        function delCreator(b){if(!b.dataset.s){b.dataset.s=1;b.textContent='¿Seguro? Pulsa otra vez';return}cfg.creators.splice(sel,1);pick('defaults')}
+        function togEmb(on){const t=T();if(on)t.embeds=structuredClone(cfg.defaults.embeds||[]);else delete t.embeds;refresh()}
+        function addEmb(){const e=T().embeds;if(e.length<10)e.push({title:'',description:'',color:5793266});refresh()}
+        function delEmb(i){T().embeds.splice(i,1);refresh()}
+        function addFld(i){(T().embeds[i].fields??=[]).push({name:'',value:'',inline:true});refresh()}
+        function delFld(i,j){T().embeds[i].fields.splice(j,1);refresh()}
+        document.addEventListener('input',e=>{const el=e.target,p=el.dataset.p,g=el.dataset.g,s=el.dataset.s,ty=el.dataset.t;
+        if(s){S[s]=el.value;return pv()}if(!p&&!g)return;let v=el.value;
+        if(ty==='list')v=v.split('\n').map(x=>x.trim()).filter(Boolean);else if(ty==='color')v=parseInt(v.slice(1),16);else if(ty==='ts')v=el.checked?'{iso}':'';else if(ty==='bool')v=el.checked;
+        if(g)cfg[g]=Math.max(1,+v||1);else{const t=T();if(p.startsWith('onEnd.')&&!isDef()&&!t.onEnd)t.onEnd=structuredClone(cfg.defaults.onEnd||{});set(t,p,Array.isArray(v)&&!v.length?'':v)}
+        if(p==='tiktokUsername')side();all()});
+        let tm;function msg(x){$('#st').textContent=x;clearTimeout(tm);tm=setTimeout(()=>$('#st').textContent='',3000)}
+        async function copy(){const o=$('#out');try{await navigator.clipboard.writeText(o.value)}catch{o.select();document.execCommand('copy')}msg('Copiado ✔')}
+        function imp(){try{const j=JSON.parse($('#imp').value);cfg={...structuredClone(DEF),...j,defaults:{...structuredClone(DEF.defaults),...(j.defaults||{})},creators:j.creators||[]};sel='defaults';refresh();msg('Config cargada ✔')}catch(x){msg('JSON inválido: '+x.message)}}
+        refresh();
+    </script>
+</body>
+
+</html>
