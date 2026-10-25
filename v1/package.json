@@ -1,0 +1,10 @@
+{
+  "name": "tiktok-live-adviser-v1",
+  "version": "1.0.0",
+  "description": "Avisos de LIVE de TikTok a webhooks de Discord (versión sencilla)",
+  "main": "index.js",
+  "scripts": { "start": "node index.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "axios": "latest", "tiktok-live-connector": "latest" },
+  "license": "MIT"
+}

@@ -1,0 +1,60 @@
+{
+  "checkIntervalMinutes": 2,
+  "delayBetweenChecksSeconds": 2,
+  "offlineThreshold": 2,
+  "jitterPercent": 30,
+  "stableThreshold": 3,
+  "backoffFactor": 2,
+  "maxIntervalMinutes": 15,
+  "defaults": {
+    "mode": "both",
+    "botName": "Alerta TikTok LIVE",
+    "message": "🚨 **¡{username} acaba de iniciar un LIVE en TikTok!**\n{url}",
+    "embeds": [
+      {
+        "title": "🔴 {username} está en vivo",
+        "description": "{title}",
+        "url": "{url}",
+        "color": 16711758,
+        "thumbnail": {
+          "url": "{avatar}"
+        },
+        "image": {
+          "url": "{cover}"
+        },
+        "fields": [
+          {
+            "name": "👀 Espectadores",
+            "value": "{viewers}",
+            "inline": true
+          },
+          {
+            "name": "🕒 Inicio",
+            "value": "{time}",
+            "inline": true
+          }
+        ],
+        "footer": {
+          "text": "TikTok LIVE"
+        },
+        "timestamp": "{iso}"
+      }
+    ],
+    "onEnd": {
+      "enabled": false,
+      "message": "⚫ El LIVE de **{username}** terminó (duró {duration})."
+    }
+  },
+  "creators": [
+    {
+      "tiktokUsername": "primer_tiktoker",
+      "webhooks": [
+        "AQUÍ_EL_WEBHOOK_DEL_SERVIDOR_1"
+      ]
+    }
+  ],
+  "server": {
+    "host": "127.0.0.1",
+    "port": 3000
+  }
+}

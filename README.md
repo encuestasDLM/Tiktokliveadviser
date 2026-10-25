@@ -1,170 +1,140 @@
 # [Discord] TikTok Live Adviser
 
-Script en Node.js que vigila a uno o varios creadores de TikTok y avisa por **webhook de Discord** en cuanto inician un LIVE. Los avisos son **100 % personalizables**: mensajes de texto, embeds completos o ambos, distintos para cada creador y para cada servidor.
+Script en Node.js que vigila a uno o varios creadores de TikTok y avisa por **webhook de Discord** en cuanto inician un LIVE. Los avisos son **100 % personalizables**: mensajes de texto, embeds completos o ambos, distintos para cada creador y servidor.
 
-Incluye un **editor web interactivo** con previsualización estilo Discord para armar el `config.json` sin escribir JSON a mano.
+Este repositorio contiene **dos versiones independientes** y una **herramienta** para pasar tu configuración de una a otra.
 
-## ✨ Características
+## 🗂️ Contenido
 
-- Vigila a tantos creadores como quieras, cada uno con uno o varios webhooks.
-- Mensajes y embeds totalmente personalizables, con variables (`{username}`, `{title}`, `{viewers}`…).
-- Valores por defecto globales que cada creador puede sobrescribir.
-- Aviso opcional cuando el LIVE termina (con la duración).
-- `config.json` se relee en cada ciclo: **no hace falta reiniciar** para aplicar cambios.
-- Guarda el estado en `state.json`, así que no repite avisos si reinicias el script.
-- Reintenta automáticamente cuando Discord limita las peticiones (error 429).
-- Un fallo de red no cuenta como "LIVE terminado" (se necesitan varias revisiones seguidas sin LIVE).
-
-## 📁 Estructura
+| Carpeta | Qué es | Documentación |
+|---|---|---|
+| [`v1/`](v1/) | Versión sencilla: un script y un `config.json`, con un editor visual que se abre en el navegador. | [README de la v1](v1/README.md) |
+| [`v2/`](v2/) | Versión ampliada: panel web servido por el propio script, API de estado, revisiones aleatorias y espaciado automático. | [README de la v2](v2/README.md) |
+| [`tools/`](tools/) | Migrador de `config.json` entre v1 y v2 (en ambas direcciones). | [README de las herramientas](tools/README.md) |
 
 ```
 .
-├── index.js             # Script principal
-├── config.json          # Tu configuración (creadores, webhooks, mensajes, embeds)
-├── editor-config.html   # Editor visual con previsualización (se abre en el navegador)
-├── package.json
-└── README.md
+├── README.md                  # Este índice
+├── v1/
+│   ├── index.js
+│   ├── config.json
+│   ├── editor-config.html     # Editor visual (se abre en el navegador)
+│   ├── package.json
+│   └── README.md
+├── v2/
+│   ├── index.js               # Script + servidor web + API
+│   ├── config.json
+│   ├── public/index.html      # Panel web (lo sirve el script)
+│   ├── package.json
+│   └── README.md
+└── tools/
+    ├── migrate-config.js
+    └── README.md
 ```
 
-## 🚀 Instalación y arranque
+## 🤔 ¿Cuál versión elegir?
 
-Requisitos: **Node.js 18 o superior**.
+- **Elige la v1** si quieres lo más simple: pocos archivos, sin servidor y sin nada que configurar aparte del JSON.
+- **Elige la v2** si vas a dejarlo corriendo de forma continua: te da panel de edición, estado consultable por API, menos peticiones a TikTok y un ritmo de consultas menos predecible.
 
-Instala las dependencias **dentro de la carpeta del proyecto** (así no se mezclan con otras carpetas ni con tu carpeta personal):
+## ⚖️ Comparación
+
+### Funciones
+
+| | v1 | v2 |
+|---|:---:|:---:|
+| Varios creadores, cada uno con uno o varios webhooks | ✅ | ✅ |
+| Mensajes y embeds totalmente personalizables, con variables | ✅ | ✅ |
+| Valores por defecto con sobrescritura por creador | ✅ | ✅ |
+| Aviso de fin de LIVE (`onEnd`) | ✅ | ✅ |
+| Confirmación de fin de LIVE (`offlineThreshold`) | ✅ | ✅ |
+| Estado persistente en `state.json` (no repite avisos al reiniciar) | ✅ | ✅ |
+| Reintento automático si Discord limita las peticiones (429) | ✅ | ✅ |
+| Recarga del `config.json` sin reiniciar | ✅ (cada ciclo) | ✅ (al instante) |
+| Editor visual con previsualización estilo Discord | ✅ (archivo HTML aparte) | ✅ (integrado) |
+| Panel servido por el propio script | ❌ | ✅ |
+| Cargar y guardar la config desde el panel | ❌ | ✅ |
+| Botón para enviar un aviso de prueba | ❌ | ✅ |
+| Endpoint API con el estado del servicio (`/api/status`) | ❌ | ✅ |
+| Revisiones con tiempos aleatorios (`jitterPercent`) | ❌ | ✅ |
+| Espaciado automático de creadores sin cambios | ❌ | ✅ |
+| Espaciado ante errores seguidos (por ejemplo, bloqueos de IP) | ❌ | ✅ |
+| Autenticación por token para los endpoints que editan la config | ❌ | ✅ |
+
+### Funcionamiento
+
+| | v1 | v2 |
+|---|---|---|
+| Programación de revisiones | Un ciclo global cada `checkIntervalMinutes`. | Un reloj por creador, con intervalo propio. |
+| Frecuencia por creador | Fija. | Variable: base ± aleatoriedad, y más espaciada si el estado no cambia. |
+| Servidor web | No. | Sí (`127.0.0.1:3000` por defecto). |
+| Dependencias | `tiktok-live-connector`, `axios` | `tiktok-live-connector` |
+| Uso de recursos | Mínimo. | Mínimo, más un servidor HTTP ligero. |
+| Detección de un LIVE nuevo | Hasta un intervalo (por defecto, 2 min). | Hasta un intervalo; si el creador estaba en espaciado, hasta `maxIntervalMinutes` (15 min por defecto). |
+
+### Configuración (`config.json`)
+
+| Ajuste | v1 | v2 |
+|---|:---:|:---:|
+| `checkIntervalMinutes`, `delayBetweenChecksSeconds`, `offlineThreshold` | ✅ | ✅ |
+| `defaults` y `creators` (mensajes, embeds, webhooks, `onEnd`…) | ✅ | ✅ |
+| `jitterPercent` | ❌ | ✅ |
+| `stableThreshold`, `backoffFactor`, `maxIntervalMinutes` | ❌ | ✅ |
+| `server` (`host`, `port`, `token`) | ❌ | ✅ |
+
+La estructura de `defaults` y de cada creador es **la misma** en ambas versiones, así que tus mensajes y embeds son totalmente portables.
+
+## 🚀 Inicio rápido
+
+Requisitos: **Node.js 18 o superior**. Instala siempre las dependencias **dentro de la carpeta de la versión** que uses.
 
 ```bash
 git clone https://github.com/encuestasDLM/Tiktokliveadviser.git
 cd Tiktokliveadviser
-npm install
 ```
 
-> Si empiezas desde cero sin `package.json`, ejecuta primero `npm init -y` dentro de la carpeta y luego `npm install tiktok-live-connector axios`. Fíjate en que el comando se corra **dentro** del proyecto: npm instala en el `package.json` o `node_modules` más cercano que encuentre hacia arriba.
-
-Edita `config.json` (a mano o con el editor web) y arranca:
+**v1**
 
 ```bash
+cd v1
+npm install
 node index.js
 ```
 
-Para detenerlo, `Ctrl + C`.
-
-### Mantenerlo corriendo en segundo plano (opcional)
+**v2**
 
 ```bash
-npm install -g pm2
-pm2 start index.js --name tiktok-live-adviser
-pm2 save
+cd v2
+npm install
+node index.js
+# Panel: http://127.0.0.1:3000   ·   Estado: http://127.0.0.1:3000/api/status
 ```
 
-## 🖥️ Editor visual
+Los detalles de cada una (parámetros, variables, ejemplos y cómo funcionan por dentro) están en su README.
 
-Abre `editor-config.html` en tu navegador (doble clic, no necesita servidor):
+## 🔄 Pasar de una versión a otra
 
-1. Elige **Global / por defecto** o un tiktoker en la barra lateral.
-2. Edita mensaje, embeds, colores, campos, menciones y demás. La previsualización se actualiza al instante.
-3. Pulsa **Copiar config.json** y pégalo en tu archivo `config.json`.
+Con el migrador, desde la raíz del repositorio:
 
-También puedes importar un `config.json` existente con "Importar un config.json existente". Las imágenes de la previsualización se muestran como recuadros de ejemplo; en Discord aparecerán las reales.
+```bash
+# v1 → v2
+node tools/migrate-config.js v1/config.json --to v2 --out v2/config.json
 
-## ⚙️ Configuración (`config.json`)
-
-### Parámetros globales
-
-| Parámetro | Descripción | Por defecto |
-|---|---|---|
-| `checkIntervalMinutes` | Cada cuántos minutos se revisa a todos los creadores. | `2` |
-| `delayBetweenChecksSeconds` | Pausa entre la revisión de un creador y la del siguiente (evita bloqueos por exceso de peticiones). | `2` |
-| `offlineThreshold` | Revisiones consecutivas sin LIVE necesarias para dar el LIVE por terminado. | `2` |
-| `defaults` | Valores que heredan todos los creadores (ver tabla siguiente). | — |
-| `creators` | Lista de creadores a vigilar. | — |
-
-### Opciones de `defaults` y de cada creador
-
-Todo lo que pongas en un creador **sobrescribe** el valor de `defaults`; lo que omitas se hereda.
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| `tiktokUsername` | string | Usuario de TikTok **sin** `@`. *(Solo en creadores)* |
-| `webhooks` | string[] | Una o varias URLs de webhook de Discord. *(Solo en creadores)* |
-| `mode` | `"message"` \| `"embed"` \| `"both"` | Qué se envía: solo texto, solo embeds o ambos. |
-| `botName` | string | Nombre con el que aparece el aviso en Discord. |
-| `botAvatar` | string | URL del avatar con el que se envía el aviso (opcional). |
-| `mention` | string | Mención al inicio del mensaje: `@everyone`, `@here` o `<@&ID_DEL_ROL>`. |
-| `message` | string | Texto del mensaje (admite Markdown de Discord y variables). |
-| `embeds` | object[] | Hasta 10 embeds. Admite todos los campos de embed de Discord: `title`, `description`, `url`, `color` (número decimal), `author`, `thumbnail`, `image`, `fields`, `footer`, `timestamp`. |
-| `onEnd` | object | Aviso al terminar el LIVE: `{ "enabled": true, "message": "..." }`. |
-
-> **Obtener el ID de un rol:** activa el modo desarrollador en Discord, clic derecho sobre el rol → *Copiar ID*, y usa `<@&ID>`.
-
-### Variables disponibles
-
-Puedes usarlas en cualquier texto del mensaje y de los embeds (título, descripción, campos, URLs, etc.).
-
-| Variable | Valor |
-|---|---|
-| `{username}` | Usuario de TikTok del creador. |
-| `{url}` | Enlace directo al LIVE. |
-| `{title}` | Título del LIVE. |
-| `{viewers}` | Espectadores en el momento del aviso. |
-| `{cover}` | URL de la portada del LIVE. |
-| `{avatar}` | URL de la foto de perfil del creador. |
-| `{time}` | Hora local de inicio. |
-| `{iso}` | Fecha/hora ISO (úsala en `timestamp` de un embed). |
-| `{duration}` | Duración del LIVE *(solo en el aviso de fin)*. |
-
-### Ejemplo
-
-```json
-{
-  "checkIntervalMinutes": 2,
-  "delayBetweenChecksSeconds": 2,
-  "offlineThreshold": 2,
-  "defaults": {
-    "mode": "both",
-    "botName": "Alerta TikTok LIVE",
-    "message": "🚨 **¡{username} acaba de iniciar un LIVE!**\n{url}",
-    "embeds": [
-      {
-        "title": "🔴 {username} está en vivo",
-        "description": "{title}",
-        "url": "{url}",
-        "color": 16711758,
-        "image": { "url": "{cover}" },
-        "footer": { "text": "TikTok LIVE" },
-        "timestamp": "{iso}"
-      }
-    ],
-    "onEnd": { "enabled": false, "message": "⚫ El LIVE de **{username}** terminó (duró {duration})." }
-  },
-  "creators": [
-    {
-      "tiktokUsername": "primer_tiktoker",
-      "webhooks": ["https://discord.com/api/webhooks/ID/TOKEN"]
-    },
-    {
-      "tiktokUsername": "segundo_tiktoker",
-      "webhooks": ["https://discord.com/api/webhooks/ID_A/TOKEN_A", "https://discord.com/api/webhooks/ID_B/TOKEN_B"],
-      "mode": "message",
-      "mention": "@everyone",
-      "message": "¡Corran! {username} está en directo: {url}",
-      "onEnd": { "enabled": true, "message": "Se acabó el live de {username} 👋" }
-    }
-  ]
-}
+# v2 → v1
+node tools/migrate-config.js v2/config.json --to v1 --out v1/config.json
 ```
 
-## 🔧 Cómo funciona
+Detecta la versión, conserva tus mensajes, embeds y webhooks, añade o descarta solo los ajustes propios de cada versión y te avisa de todo lo que hace. Más información en el [README de las herramientas](tools/README.md).
 
-1. Cada `checkIntervalMinutes` el script recorre la lista de creadores, uno por uno y con una pausa entre ellos.
-2. Para cada uno consulta a TikTok si tiene un LIVE activo (con [`tiktok-live-connector`](https://github.com/zerodytrash/TikTok-Live-Connector)).
-3. Si el creador **pasa de no estar en vivo a estarlo**, arma el aviso: rellena las variables, aplica `mode` y manda el resultado a cada webhook.
-4. Si deja de estar en vivo durante `offlineThreshold` revisiones seguidas, lo marca como terminado y, si `onEnd.enabled` es `true`, envía el aviso de fin.
-5. El estado de cada creador se guarda en `state.json` para no duplicar avisos al reiniciar.
+## ⚠️ Notas importantes
+
+- **No ejecutes la v1 y la v2 a la vez con los mismos creadores y webhooks:** cada una avisaría por su cuenta y Discord recibiría los avisos duplicados. Cada versión guarda además su propio `state.json`.
+- Una configuración de la v1 funciona en la v2 (los ajustes nuevos toman sus valores por defecto) y viceversa (la v1 ignora lo que no conoce). Aun así, usa el migrador para dejar los archivos limpios y para convertir el antiguo `discordWebhookUrl`.
 
 ## ⚠️ Aviso
 
-Este proyecto usa [`tiktok-live-connector`](https://github.com/zerodytrash/TikTok-Live-Connector), una librería **no oficial** que no está afiliada a TikTok. TikTok puede cambiar su sistema en cualquier momento y romper el funcionamiento hasta que la librería se actualice. Si algo deja de funcionar, prueba primero con `npm update tiktok-live-connector`.
+Este proyecto usa [`tiktok-live-connector`](https://github.com/zerodytrash/TikTok-Live-Connector), una librería **no oficial** que no está afiliada a TikTok. TikTok puede cambiar su sistema en cualquier momento y romper el funcionamiento hasta que la librería se actualice; si pasa, prueba primero con `npm update tiktok-live-connector`. TikTok también suele limitar las IPs de servidores y centros de datos, por lo que lo más estable es ejecutarlo desde un equipo con IP residencial.
 
 ## 📄 Licencia
 
-MIT
+Consulta el archivo `LICENSE` del repositorio.
